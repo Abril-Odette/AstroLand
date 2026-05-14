@@ -5,6 +5,19 @@ AstroLand es un simulador de aterrizaje espacial desarrollado en C++ utilizando 
 
 El objetivo es proporcionar una experiencia educativa y técnica donde el usuario debe optimizar el uso de propulsores y gestionar la salud de los componentes de la nave para lograr un aterrizaje exitoso bajo condiciones de riesgo.
 
+---
+
+## Estructura
+Para mantener una mejor organización, el repositorio se organiza de la siguiente manera:
+*   `assets/`: Recursos multimedia (texturas de planetas, sprites de la nave y fuentes).
+*   `docs/`: Documentación técnica y diagramas UML.
+*   `include/`: Archivos de cabecera (`.h` / `.hpp`) con las definiciones de las clases.
+*   `src/`: Archivos fuente (`.cpp`) con la implementación de la lógica.
+*   `main.cpp`: Punto de entrada de la aplicación.
+*   `.gitignore`: Configuración para excluir archivos temporales de compilación.
+
+---
+
 ## Arquitectura General y Modelo POO
 La solución está construida bajo un diseño PPOO que separa claramente las responsabilidades en capas para garantizar un sistema extensibley modular:
 
@@ -21,3 +34,5 @@ La solución está construida bajo un diseño PPOO que separa claramente las res
 ### 3. Módulos de Servicio (Lógica de los Cálculos)
 *   **Controlador Físico:** Contiene la lógica matemática para resolver las ecuaciones de movimiento dinámico mediante la integración de fuerzas (Empuje vs. Gravedad vs. Arrastre).
 *   **Sistema de Telemetría:** Encargado de transformar las variables internas de la simulación (velocidad, altitud, rotación) en información visual interactiva mediante SFML.
+
+---
