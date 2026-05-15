@@ -1,7 +1,7 @@
 # AstroLand
 
 ## Descripción General
-AstroLand es un simulador de aterrizaje espacial desarrollado en C++ utilizando la librería gráfica SFML. El proyecto aborda el desafío de ingeniería de aterrizar una carga útil en diversos cuerpos celestes (como la Luna o Marte) considerando variables físicas reales como la gravedad diferencial, la densidad atmosférica y el manejo crítico de combustible.
+AstroLand es un simulador de aterrizaje espacial desarrollado en C++14. El proyecto aborda el desafío de ingeniería de aterrizar una carga útil en diversos cuerpos celestes (como la Luna o planetas con atmósfera) considerando variables físicas reales como la gravedad diferencial, la densidad atmosférica y el manejo crítico de combustible, todo mediante una interfaz técnica de consola (ASCII):
 
 El objetivo es proporcionar una experiencia educativa y técnica donde el usuario debe optimizar el uso de propulsores y gestionar la salud de los componentes de la nave para lograr un aterrizaje exitoso bajo condiciones de riesgo.
 
@@ -9,10 +9,11 @@ El objetivo es proporcionar una experiencia educativa y técnica donde el usuari
 
 ## Estructura
 Para mantener una mejor organización, el repositorio se organiza de la siguiente manera:
-*   `assets/`: Recursos multimedia (texturas de planetas, sprites de la nave y fuentes).
+*   `bin/`: Ejecutables generados tras la compilación.
 *   `docs/`: Documentación técnica y diagramas UML.
 *   `include/`: Archivos de cabecera (`.h` / `.hpp`) con las definiciones de las clases.
 *   `src/`: Archivos fuente (`.cpp`) con la implementación de la lógica.
+*   `logs/`: Registros de telemetría generados por la "Caja Negra" del simulador.
 *   `main.cpp`: Punto de entrada de la aplicación.
 *   `.gitignore`: Configuración para excluir archivos temporales de compilación.
 
@@ -31,8 +32,9 @@ La solución está construida bajo un diseño PPOO que separa claramente las res
 *   **Propulsor (Herencia de Componente):** Implementa la lógica de empuje vectorial. Modificación clave: Su estructura permite transformar el combustible en fuerza aplicada a los ejes cartesianos mediante trigonometría.
 *   **NaveEspacial (Composición):** Actúa como un contenedor dinámico que utiliza una lista de punteros a objetos `Componente`. Es capaz de integrar fuerzas y actualizar su estado cinemático en tiempo real.
 
-### 3. Módulos de Servicio (Lógica de los Cálculos)
-*   **Controlador Físico:** Contiene la lógica matemática para resolver las ecuaciones de movimiento dinámico mediante la integración de fuerzas (Empuje vs. Gravedad vs. Arrastre).
-*   **Sistema de Telemetría:** Encargado de transformar las variables internas de la simulación (velocidad, altitud, rotación) en información visual interactiva mediante SFML.
+### 3. Módulos de Servicio y Telemetría (Lógica de los Cálculos)
+*   **Vector2D** CEstructura matemática propia que sustituye dependencias externas para resolver ecuaciones de movimiento dinámico (Posición y Velocidad).
+*   **Registrador de Vuelo (Caja Negra)** Módulo encargado de capturar "snapchots" de la telemetría (altitud, velocidad, combustible) y guardarlos en archivos de texto para su posterior análisis (utilidad en ingienería aeroespacial).
+*   **Registrador de Vuelo (Caja Negra)** Módulo encargado de capturar "snapchots" de la telemetría (altitud, velocidad, combustible) y guardarlos en archivos de texto para su posterior análisis (utilidad en ingienería aeroespacial).
 
 ---
