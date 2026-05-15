@@ -33,7 +33,7 @@ The solution is built on an Onject-Oriented Design that decouples responsibiliti
 *   **Spacecraft (Composition):** Acts as a dynamic container for `Component` pointers. It integrates forces using the custom `Vector2D` class to update the ship's kinematic state in real-time.
 
 ### 3. Service Modules (Computational Logic & Telemetry)
-*   **Vector2D** A custom mathematical structure that replaces external dependencies to solve dynamic equations of motion (Position and Velocity).
-*   **FlightRecorder (Black Box** A module dedicated to capturing telemetry snapshots (altitude, velocity, fuel) and persisting them into text files for post-flight analysis, mimicking aerospace engineering standards.
-
+*   **Vector2D:** A custom mathematical structure that replaces external dependencies to solve dynamic equations of motion (Position and Velocity).
+*   **FlightRecorder (Black Box):** A module dedicated to capturing telemetry snapshots (altitude, velocity, fuel) and persisting them into text files for post-flight analysis, mimicking aerospace engineering standards.
+*   **ASCII renderer:** Handles the visual representation of the ship's position and the flight UI within the console, ensuring system portability and minimal library overhead.
 ---
