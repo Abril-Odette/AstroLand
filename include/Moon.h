@@ -4,6 +4,18 @@
 #include "Astro.h"
 
 class Moon : public Astro {
+    private:
+        double orbitalRadius;
+        double orbitalPeriod;
+
+    public:
+        Moon(const std::string& name, double mass, double radius, const Vector2D& position, double orbitalRadius, double orbitalPeriod);
+        ~Moon();
+
+        double getOrbitalRadius() const;
+        double getOrbitalPeriod() const;
+
+        double surfaceGravity() const override;
     
 };
 
