@@ -26,6 +26,11 @@ class Spacecraft {
         Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuelCapacity);
         ~Spacecraft();
 
+        Spacecraft(const Spacecraft&) = delete;
+        Spacecraft& operator=(const Spacecraft&) = delete;
+        Spacecraft(Spacecraft&&) = default;
+        Spacecraft& operator=(Spacecraft&&) = default;
+
         const std::string& getName() const noexcept;
         const Vector2D& getPosition() const noexcept;
         const Vector2D& getVelocity() const noexcept;
