@@ -3,9 +3,13 @@
 
 #include <vector>
 #include <memory>
+#include <string>
+#include <iostream>
 
 #include "Vector2D.h"
 #include "Component.h"
+#include "Thruster.h"
+#include "Astro.h"
 
 class Spacecraft {
     private:
@@ -13,7 +17,7 @@ class Spacecraft {
         Vector2D position;
         Vector2D velocity;
         double mass;
-        double fuelCapacity;
+        double fuel;
         bool landed;
         std::vector<std::unique_ptr<Component>> components;
 
@@ -24,10 +28,16 @@ class Spacecraft {
         const Vector2D& getPosition() const;
         const Vector2D& getVelocity() const;
         double getMass() const;
-        double getFuelCapacity() const;
+        double getFuel() const;
         bool isLanded() const;
 
         void addComponent(std::unique_ptr<Component> component);
+
+        void applyGravity(const Astro& body, double dt);
+        void applyThrust(const double dt);
+        void update(const Astro& body, double dt);
+        bool checkLanding(const Astro& body);
+
 };
 
 #endif
