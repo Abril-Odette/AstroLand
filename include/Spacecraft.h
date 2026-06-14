@@ -10,6 +10,7 @@
 #include "Component.h"
 #include "Thruster.h"
 #include "Astro.h"
+#include "AstrolandException.h"
 
 class Spacecraft {
     private:
@@ -23,13 +24,14 @@ class Spacecraft {
 
     public:
         Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuelCapacity);
+        ~Spacecraft();
 
-        const std::string& getName() const;
-        const Vector2D& getPosition() const;
-        const Vector2D& getVelocity() const;
-        double getMass() const;
-        double getFuel() const;
-        bool isLanded() const;
+        const std::string& getName() const noexcept;
+        const Vector2D& getPosition() const noexcept;
+        const Vector2D& getVelocity() const noexcept;
+        double getMass() const noexcept;
+        double getFuel() const noexcept;
+        bool isLanded() const noexcept;
 
         void addComponent(std::unique_ptr<Component> component);
 

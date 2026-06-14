@@ -10,29 +10,39 @@
 #include "Thruster.h"
 
 Spacecraft::Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuel)
-    : name(name), position(position), velocity(0.0, 0.0), mass(mass), fuel(fuel), landed(false) {}
+    : name(name), position(position), velocity(0.0, 0.0), mass(mass), fuel(fuel), landed(false)
 
-const std::string& Spacecraft::getName() const {
+
+{
+    if (name.empty())
+        throw AtrolandException("Spacecraft name cannot be empty.");
+    if (mass <= 0.0)
+        throw AtrolandException("Spacecraft mass must be positive. Got: " + std::to_string(mass));
+    if (fuel < 0.0)
+        throw AtrolandException("Spacecraft fuel cannot be negative. Got: " + std::to_string(fuel));
+}
+
+const std::string& Spacecraft::getName() const noexcept {
     return name;
 }
 
-const Vector2D& Spacecraft::getPosition() const {
+const Vector2D& Spacecraft::getPosition() const noexcept {
     return position;
 }
 
-const Vector2D& Spacecraft::getVelocity() const {
+const Vector2D& Spacecraft::getVelocity() const noexcept {
     return velocity;
 }
 
-double Spacecraft::getMass() const {
+double Spacecraft::getMass() const noexcept {
     return mass;
 }
 
-double Spacecraft::getFuel() const {
+double Spacecraft::getFuel() const noexcept {
     return fuel;
 }
 
-bool Spacecraft::isLanded() const {
+bool Spacecraft::isLanded() const noexcept {
     return landed;
 }
 
