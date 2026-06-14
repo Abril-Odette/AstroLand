@@ -10,7 +10,7 @@ class Moon : public Astro {
 
     public:
         Moon(const std::string& name, double mass, double radius, const Vector2D& position, double orbitalRadius, double orbitalPeriod);
-        ~Moon();
+        ~Moon() override = default;
 
         double getOrbitalRadius() const;
         double getOrbitalPeriod() const;

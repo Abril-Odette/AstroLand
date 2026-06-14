@@ -13,7 +13,7 @@ protected:
 
 public:
     Astro(const std::string& name, double mass, double radius, const Vector2D& position);
-    virtual ~Astro() noexcept = default;
+    virtual ~Astro();
 
     const std::string& getName() const noexcept;
     double getMass() const noexcept;

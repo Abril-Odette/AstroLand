@@ -24,7 +24,7 @@ class Spacecraft {
 
     public:
         Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuelCapacity);
-        ~Spacecraft();
+        ~Spacecraft() = default;
 
         Spacecraft(const Spacecraft&) = delete;
         Spacecraft& operator=(const Spacecraft&) = delete;
@@ -41,7 +41,7 @@ class Spacecraft {
         void addComponent(std::unique_ptr<Component> component);
 
         void applyGravity(const Astro& body, double dt);
-        void applyThrust(const double dt);
+        void applyThrust(double dt);
         void update(const Astro& body, double dt);
         bool checkLanding(const Astro& body);
 

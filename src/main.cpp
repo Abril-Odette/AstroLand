@@ -6,11 +6,11 @@ int main() {
     try {
         Game game;
         game.run();
-    } catch (const AtrolandException& ex) {
+    } catch (const AstrolandException& ex) {
         std::cerr << "[AstroLandException]: " << ex.what() << std::endl;
         return 1;
     } catch (const std::exception& ex) {
-        std::cerr << "[std::exception]: " << ex.what() << std::endl;
+        std::cerr << "[Fatal]: " << ex.what() << std::endl;
         return 1;
     }
     

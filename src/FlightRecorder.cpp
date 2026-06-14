@@ -1,9 +1,7 @@
-#include <vector>
-#include <string>
+#include "FlightRecorder.h"
+
 #include <fstream>
 #include <iostream>
-
-#include "FlightRecorder.h"
 
 FlightRecorder::FlightRecorder(const std::string& logFilePath) : logFilePath(logFilePath) {}
 

@@ -4,14 +4,14 @@
 #include <exception>
 #include <string>
 
-class AtrolandException : public std::exception {
+class AstrolandException : public std::exception {
     private:
         std::string message;
     
     public:
-        AtrolandException(const std::string& msg) : message(msg) {}
+        AstrolandException(const std::string& msg) : message(msg) {}
         
-        virtual const char* what() const noexcept override {
+        const char* what() const noexcept override {
             return message.c_str();
         }
 };

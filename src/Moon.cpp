@@ -1,5 +1,4 @@
 #include "Moon.h"
-#include "Astro.h"
 
 Moon::Moon(const std::string& name, double mass, double radius, const Vector2D& position, double orbitalRadius, double orbitalPeriod)
     : Astro(name, mass, radius, position), orbitalRadius(orbitalRadius), orbitalPeriod(orbitalPeriod) {}

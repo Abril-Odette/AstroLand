@@ -15,13 +15,12 @@ class Game {
 
     public:
     Game();
+    ~Game() = default;
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
     Game(Game&&) = delete;
     Game& operator=(Game&&) = delete;
-    
-    ~Game();
     
     void run();
     

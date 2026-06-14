@@ -1,5 +1,4 @@
 #include "Planet.h"
-#include "Astro.h"
 
 Planet::Planet(const std::string& name, double mass, double radius, const Vector2D& position, bool hasAtmosphere, double atmosphereDensity)
     : Astro(name, mass, radius, position), hasAtmosphere(hasAtmosphere), atmosphereDensity(atmosphereDensity) {}
