@@ -15,14 +15,21 @@ Game::Game()
       flightRecorder("logs/flight.log")
       {
         flightRecorder.record("[GAME] initialized.");
+        
         spacecraft->addComponent(std::make_unique<Thruster>(100.0, 50.0, 5000.0, 15000.0, 8.0, Vector2D(0.0, 1.0))
+      );
+
+      spacecraft->addComponent(
+        std::make_unique<Thruster>(100.0, 5.0, 500.0, 800.0)
       );
       }
 
 void Game::run() {
   try {
     std::cout << "===== AstroLand Simulator =====" << std::endl;
-    std::cout << "Target body: " << astro->getName() << std::endl;
+    std::cout << "Target body: " << astro->getName() << std::endl
+              << " | Gravity: " << std::fixed << std::setprecision(2)
+              << astro->surfaceGravity() << "m/s^2" << std::endl;
     std::cout << "Surface gravity: " << std::fixed << std::setprecision(2) << astro->surfaceGravity() << " m/s²" << std::endl;
 
     flightRecorder.record("[GAME] Game started.");
@@ -31,6 +38,11 @@ void Game::run() {
     const int maxSteps = 2000;
 
     for (int step = 0; step < maxSteps; ++step){
+
+      double surfaceY = astro->getPosition().y + astro->getRadius();
+      double altitude = spacecraft->getPosition().y - surfaceY;
+
+      spacecraft->setThrusterActive(altitude < 500.0);
       spacecraft->update(*astro, dt);
 
       if (step % 50 == 0) {
@@ -38,6 +50,7 @@ void Game::run() {
         << "s | Position: " << spacecraft->getPosition()
         << " | Velocity: " << spacecraft->getVelocity()
         << " | Fuel: " << std::setprecision(1) << spacecraft->getFuel()
+        << (spacecraft->isThrusterActive()? "[BURN]" : "")
         << std::endl;
 
         flightRecorder.record("[GAME] Time: " + std::to_string(step) + 

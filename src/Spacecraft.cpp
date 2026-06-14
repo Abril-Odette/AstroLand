@@ -3,9 +3,10 @@
 
 #include "Spacecraft.h"
 #include "Thruster.h"
+#include "FuelSensor.h"
 
 Spacecraft::Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuel)
-    : name(name), position(position), velocity(0.0, 0.0), mass(mass), fuel(fuel), landed(false)
+    : name(name), position(position), velocity(0.0, 0.0), mass(mass), fuel(fuel), landed(false),thrusterActive(false)
 {
     if (name.empty())
         throw AstrolandException("Spacecraft name cannot be empty.");
@@ -39,6 +40,10 @@ bool Spacecraft::isLanded() const noexcept {
     return landed;
 }
 
+bool Spacecraft::isThrusterActive() const noexcept {
+    return thrusterActive;
+}
+
 void Spacecraft::addComponent(std::unique_ptr<Component> component) {
     components.push_back(std::move(component));
 }
@@ -50,21 +55,25 @@ void Spacecraft::applyGravity(const Astro& body, double dt) {
 }
 
 void Spacecraft::applyThrust(double dt) {
-    if (fuel <= 0.0) return;
+    for (const auto& comp : components) {
+        FuelSensor* sensor = dynamic_cast<FuelSensor*>(comp.get());
+        if (sensor) sensor->updateFuel(fuel);
+    }
+
+    if (!thrusterActive || fuel <= 0.0) return;
 
     for (const auto& comp : components) {
         Thruster* thruster = dynamic_cast<Thruster*>(comp.get());
         if (thruster == nullptr) continue;
 
-        double fuelNeeded = thruster->getFuelConsumption() * dt;
+        double fuelNeeded = thruster->getFuelConsumption()* dt;
         if (fuel < fuelNeeded) continue;
 
         thruster->activate();
 
-        Vector2D thrustDirection = thruster->getDirection().normalize();
-        double accelerationMagnitude = thruster->getThrust() / mass;
-
-        velocity = velocity + thrustDirection.scale(accelerationMagnitude * dt);
+        Vector2D thrustDir = thruster->getDirection().normalize();
+        double accelMag = thruster ->getThrust() / mass;
+        velocity = velocity + thrustDir.scale(accelMag * dt);
         fuel -= fuelNeeded;
     }
 }

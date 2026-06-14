@@ -20,10 +20,11 @@ class Spacecraft {
         double mass;
         double fuel;
         bool landed;
+        bool thrusterActive;
         std::vector<std::unique_ptr<Component>> components;
 
     public:
-        Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuelCapacity);
+        Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuel);
         ~Spacecraft() = default;
 
         Spacecraft(const Spacecraft&) = delete;
@@ -37,7 +38,9 @@ class Spacecraft {
         double getMass() const noexcept;
         double getFuel() const noexcept;
         bool isLanded() const noexcept;
+        bool isThrusterActive() const noexcept;
 
+        void setThrusterActive(bool active) noexcept;
         void addComponent(std::unique_ptr<Component> component);
 
         void applyGravity(const Astro& body, double dt);
