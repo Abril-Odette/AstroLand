@@ -10,7 +10,7 @@ private:
 
 public:
     Planet(const std::string& name, double mass, double radius, const Vector2D& position, bool hasAtmosphere, double atmosphereDensity);
-    ~Planet();
+    ~Planet() override = default;
 
     bool getHasAtmosphere() const;
     double getAtmosphereDensity() const;

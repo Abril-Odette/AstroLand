@@ -5,8 +5,8 @@
 #include "Thruster.h"
 #include "FuelSensor.h"
 
-Spacecraft::Spacecraft(const std::string& name, const Vector2D& position, const Vector2D& velocity, double mass, double fuel)
-    : name(name), position(position), velocity(0.0, 0.0), mass(mass), fuel(fuel), landed(false),thrusterActive(false)
+Spacecraft::Spacecraft(const std::string& name, const Vector2D& position, double mass, double fuel)
+    : name(name), position(position), mass(mass), fuel(fuel), landed(false), crashed(false), thrusterActive(false)
 {
     if (name.empty())
         throw AstrolandException("Spacecraft name cannot be empty.");
@@ -40,6 +40,10 @@ bool Spacecraft::isLanded() const noexcept {
     return landed;
 }
 
+bool Spacecraft::isCrashed() const noexcept { 
+    return crashed; 
+}
+
 bool Spacecraft::isThrusterActive() const noexcept {
     return thrusterActive;
 }
@@ -50,8 +54,7 @@ void Spacecraft::addComponent(std::unique_ptr<Component> component) {
 
 void Spacecraft::applyGravity(const Astro& body, double dt) {
     double g = body.surfaceGravity();
-    Vector2D gravityAcceleration(0.0, -g);
-    velocity = velocity + gravityAcceleration.scale(dt);
+    velocity = velocity + Vector2D(0.0,-g).scale(dt);
 }
 
 void Spacecraft::applyThrust(double dt) {
@@ -64,7 +67,7 @@ void Spacecraft::applyThrust(double dt) {
 
     for (const auto& comp : components) {
         Thruster* thruster = dynamic_cast<Thruster*>(comp.get());
-        if (thruster == nullptr) continue;
+        if (!thruster) continue;
 
         double fuelNeeded = thruster->getFuelConsumption()* dt;
         if (fuel < fuelNeeded) continue;
@@ -79,7 +82,7 @@ void Spacecraft::applyThrust(double dt) {
 }
 
 void Spacecraft::update(const Astro& body, double dt) {
-    if (landed) return;
+    if (landed || crashed) return;
 
     applyGravity(body, dt);
     applyThrust(dt);
@@ -89,7 +92,7 @@ void Spacecraft::update(const Astro& body, double dt) {
 }
 
 bool Spacecraft::checkLanding(const Astro& body) {
-    if (landed) return true;
+    if (landed || crashed) return true;
 
     double surfaceY = body.getPosition().y + body.getRadius();
 
@@ -110,5 +113,5 @@ bool Spacecraft::checkLanding(const Astro& body) {
         velocity = Vector2D(0.0, 0.0);
     }
 
-    return landed;
+    return landed || crashed;
 }
