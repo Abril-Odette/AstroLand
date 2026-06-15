@@ -48,6 +48,10 @@ bool Spacecraft::isThrusterActive() const noexcept {
     return thrusterActive;
 }
 
+void Spacecraft::setThrusterActive(bool active) noexcept {
+    thrusterActive = active;
+}
+
 void Spacecraft::addComponent(std::unique_ptr<Component> component) {
     components.push_back(std::move(component));
 }

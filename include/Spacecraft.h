@@ -40,7 +40,6 @@ class Spacecraft {
         double getFuel() const noexcept;
         bool isLanded() const noexcept;
         bool isCrashed() const noexcept;
-        
         bool isThrusterActive() const noexcept;
 
         void setThrusterActive(bool active) noexcept;
