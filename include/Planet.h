@@ -12,8 +12,8 @@ public:
     Planet(const std::string& name, double mass, double radius, const Vector2D& position, bool hasAtmosphere, double atmosphereDensity);
     ~Planet() override = default;
 
-    bool getHasAtmosphere() const;
-    double getAtmosphereDensity() const;
+    bool getHasAtmosphere() const noexcept;
+    double getAtmosphereDensity() const noexcept;
     
     double surfaceGravity() const override;
 };

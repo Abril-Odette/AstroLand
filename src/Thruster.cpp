@@ -4,15 +4,15 @@
 Thruster::Thruster(double health, double weight, double cost, double thrust, double fuelConsumption, const Vector2D& direction)
     : Component(health, weight, cost), thrust(thrust), fuelConsumption(fuelConsumption), direction(direction) {}
 
-double Thruster::getThrust() const {
+double Thruster::getThrust() const noexcept{
     return thrust;
 }
 
-double Thruster::getFuelConsumption() const {
+double Thruster::getFuelConsumption() const noexcept{
     return fuelConsumption;
 }
 
-const Vector2D& Thruster::getDirection() const {
+const Vector2D& Thruster::getDirection() const noexcept{
     return direction;
 }
 

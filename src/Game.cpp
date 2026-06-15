@@ -148,7 +148,7 @@ void Game::run() {
 
             bool finished = false;
             for (int i = 0; i < PHYS_STEPS && !finished; ++i) {
-                spacecraft->update(*astro, DT);
+                spacecraft->update(*astro, dt);
                 elapsedTime += DT;
 
                 if (spacecraft->checkLanding(*astro))

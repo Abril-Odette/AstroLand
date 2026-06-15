@@ -4,14 +4,14 @@ Component::Component(double health, double weight, double cost) : health(health)
 
 Component::~Component() {}
 
-double Component::getHealth() const {
+double Component::getHealth() const noexcept{
     return health;
 }
 
-double Component::getWeight() const {
+double Component::getWeight() const noexcept{
     return weight;
 }
 
-double Component::getCost() const {
+double Component::getCost() const noexcept{
     return cost;
 }

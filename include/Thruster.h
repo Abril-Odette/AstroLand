@@ -13,9 +13,9 @@
     public:
         Thruster(double health, double weight, double cost, double thrust, double fuelConsumption, const Vector2D& direction);
 
-        double getThrust() const;
-        double getFuelConsumption() const;
-        const Vector2D& getDirection() const;
+        double getThrust() const noexcept;
+        double getFuelConsumption() const noexcept;
+        const Vector2D& getDirection() const noexcept;
 
         void activate() override;
 };
