@@ -7,11 +7,11 @@ bool Planet::getHasAtmosphere() const noexcept{
     return hasAtmosphere;
 }
 
-double Planet::getAtmosphereDensity() const {
+double Planet::getAtmosphereDensity() const noexcept{
     return atmosphereDensity;
 }
 
-double Planet::surfaceGravity() const noexcept{
+double Planet::surfaceGravity() const {
     const double G = 6.67430e-11; // Gravitational constant
     return G * mass / (radius * radius);
 }
