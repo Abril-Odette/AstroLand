@@ -19,32 +19,53 @@ static void clearScreen() {
   #endif
 }
 
-static void printAltitudeBar(double altitude, double maxAlt) {
-  const int BAR_HEIGHT = 15;
-  int level = 0;
-  if (maxAlt > 0)
-  level = static_cast<int>((altitude / maxAlt) * BAR_HEIGHT);
-  if (level > BAR_HEIGHT) level = BAR_HEIGHT;
-  if (level < 0) level = 0;
+static void printSeparator() {
+    std::cout << "  +----------------------------------------+\n";
+}
 
-  std::cout << "  Altura\n";
+static void printAltitudeBar(double altitude, double maxAlt) {
+  const int BAR_HEIGHT = 12;
+    int level = 0;
+    if (maxAlt > 0)
+        level = static_cast<int>((altitude / maxAlt) * BAR_HEIGHT);
+    if (level > BAR_HEIGHT) level = BAR_HEIGHT;
+    if (level < 0)          level = 0;
+
+    std::cout << "  |  ALT  |  STATUS\n";
     for (int i = BAR_HEIGHT; i >= 0; --i) {
-        if (i == level)
-            std::cout << "  |  [^]\n";   // spaceship
+        if (i == BAR_HEIGHT)
+            std::cout << "  | " << std::setw(5) << static_cast<int>(maxAlt) << " |";
+        else if (i == BAR_HEIGHT / 2)
+            std::cout << "  | " << std::setw(5) << static_cast<int>(maxAlt / 2) << " |";
         else if (i == 0)
-            std::cout << "  |====|\n";   // ground
+            std::cout << "  |     0 |";
         else
-            std::cout << "  |    |\n";
+            std::cout << "  |       |";
+
+        if (i == level)
+            std::cout << "  [^] spacecraft\n";
+        else if (i == 0)
+            std::cout << "  === surface ===\n";
+        else
+            std::cout << "\n";
     }
 }
 
 static void printFuelBar(double fuel, double maxFuel) {
-    const int WIDTH = 20;
+    const int WIDTH = 24;
     int filled = (maxFuel > 0) ? static_cast<int>((fuel / maxFuel) * WIDTH) : 0;
-    std::cout << "  Fuel [";
+    if (filled < 0) filled = 0;
+    std::cout << "  Fuel  [";
     for (int i = 0; i < WIDTH; ++i)
         std::cout << (i < filled ? '#' : '.');
     std::cout << "] " << std::fixed << std::setprecision(1) << fuel << " kg\n";
+}
+
+static std::string speedStatus(double speed, double altitude) {
+    if (altitude < 200.0 && speed > 5.0)  return "  *** DANGER: BRAKE NOW ***";
+    if (altitude < 500.0 && speed > 20.0) return "  !! High speed near surface !!";
+    if (altitude < 1000.0)                return "  Approaching surface - prepare to brake";
+    return "  Cruising";
 }
 
 Game::Game()
@@ -64,26 +85,51 @@ Game::Game()
       );
       }
 
-void Game::run() {
-  try {
+static void printControls() {
+    std::cout << "\n";
+    std::cout << "  +-------------- CONTROLS ---------------+\n";
+    std::cout << "  |  [t] + Enter  ->  Fire thruster       |\n";
+    std::cout << "  |  [s] + Enter  ->  Cut thruster        |\n";
+    std::cout << "  |  [Enter]      ->  Coast (no thrust)   |\n";
+    std::cout << "  |  [q] + Enter  ->  Abort mission       |\n";
+    std::cout << "  +---------------------------------------+\n";
+    std::cout << "  TIP: The thruster fires UPWARD to slow  \n";
+    std::cout << "  your descent. Use short burns near the  \n";
+    std::cout << "  surface. Safe landing speed: <= 5 m/s.  \n";
+    printSeparator();
+}
+
+static void printIntro(const std::string& bodyName, double gravity) {
     clearScreen();
-        std::cout << "\n";
-        std::cout << "  +========================================+\n";
-        std::cout << "  |         A S T R O L A N D             |\n";
-        std::cout << "  |   Space Landing Simulator              |\n";
-        std::cout << "  +========================================+\n\n";
-        std::cout << "  Celestial body : " << astro->getName() << "\n";
-        std::cout << "  Surface gravity: " << std::fixed << std::setprecision(2)
-                  << astro->surfaceGravity() << " m/s^2\n\n";
+    std::cout << "\n";
+    std::cout << "  +========================================+\n";
+    std::cout << "  |         A S T R O L A N D             |\n";
+    std::cout << "  |     Space Landing Simulator            |\n";
+    std::cout << "  +========================================+\n\n";
+    std::cout << "  MISSION BRIEFING\n";
+    printSeparator();
+    std::cout << "  Target body    : " << bodyName << "\n";
+    std::cout << "  Surface gravity: " << std::fixed << std::setprecision(2)
+              << gravity << " m/s^2\n";
+    std::cout << "  Starting alt.  : 3500 m\n";
+    std::cout << "  Ship mass      : 500 kg\n";
+    std::cout << "  Fuel loaded    : 800 kg\n";
+    std::cout << "  Thruster force : 15000 N (upward)\n";
+    std::cout << "  Fuel burn rate : 8 kg/s\n";
+    printSeparator();
+    std::cout << "\n";
+    std::cout << "  OBJECTIVE: Land the spacecraft safely.\n";
+    std::cout << "  Touch down at 5 m/s or less to survive.\n";
+    std::cout << "  Exceed that and the ship is destroyed.\n";
+    printControls();
+    std::cout << "  Press Enter to begin the mission...";
+    std::cin.ignore();
+}
 
-        std::cout << "  Controls:\n";
-        std::cout << "  [t] + Enter  ->  Fire thruster\n";
-        std::cout << "  [s] + Enter  ->  Cut thruster\n";
-        std::cout << "  [q] + Enter  ->  Abort mission\n";
-        std::cout << "  [Enter]      ->  Advance 1 second\n\n";
-        std::cout << "  Press Enter to begin...";
-        std::cin.ignore();
+void Game::run() {
 
+  try {
+    printIntro(astro->getName(), astro->surfaceGravity());
         flightRecorder.record("[GAME] Game started.");
 
     const double dt = 0.05; 
@@ -93,6 +139,8 @@ void Game::run() {
     const double INIT_FUEL  = 800.0;
 
     double elapsedTime = 0.0;
+    std::string lastCmd = "none";
+        std::string lastMsg = "";
 
     while (true) {
             // --- telemetry ---------------------------------------------------
@@ -105,27 +153,49 @@ void Game::run() {
 
           clearScreen();
             std::cout << "\n";
-            std::cout << "  ============== TELEMETRY ===============\n";
+            std::cout << "  +========= ASTROLAND SIMULATOR =========+\n";
+            std::cout << "  | Mission: Land on " << std::left << std::setw(21)
+                      << astro->getName() << " |\n";
+            std::cout << "  +=======================================+\n\n";
+
+            // Telemetry
+            std::cout << "  --------- TELEMETRY --------------------\n";
+            std::cout << std::right;
             std::cout << "  Time       : " << std::fixed << std::setprecision(1)
                       << elapsedTime << " s\n";
-            std::cout << "  Altitude   : " << std::setprecision(1) << altitude << " m\n";
-            std::cout << "  Speed      : " << std::setprecision(2) << speed    << " m/s\n";
-            std::cout << "  Vert. vel. : " << std::setprecision(2) << vy       << " m/s"
-                      << (vy < 0 ? "  [descending]" : "  [ascending]") << "\n";
-            std::cout << "  Thruster   : " << (burning ? "[ON]  FIRING" : "[OFF] idle") << "\n";
+            std::cout << "  Altitude   : " << std::setprecision(1)
+                      << altitude << " m\n";
+            std::cout << "  Vert. vel. : " << std::setprecision(2) << vy << " m/s  "
+                      << (vy < -0.1 ? "[descending]" : vy > 0.1 ? "[ascending] " : "[stable]    ")
+                      << "\n";
+            std::cout << "  Speed      : " << std::setprecision(2) << speed << " m/s\n";
+            std::cout << "  Gravity    : " << std::setprecision(2)
+                      << astro->surfaceGravity() << " m/s^2\n";
+            std::cout << "  Thruster   : "
+                      << (burning ? "[ON]  FIRING - consuming fuel" : "[OFF] idle") << "\n";
             printFuelBar(fuel, INIT_FUEL);
+            std::cout << "  Status     : " << speedStatus(speed, altitude) << "\n\n";
 
-            if (altitude < 200.0 && speed > 5.0)
-                std::cout << "\n  *** WARNING: DANGEROUS SPEED - BRAKE NOW ***\n";
-            else if (altitude < 500.0)
-                std::cout << "\n  Approaching surface...\n";
-            else
-                std::cout << "\n";
-
-            std::cout << "\n";
             printAltitudeBar(altitude, MAX_ALT);
             std::cout << "\n";
             std::cout << "  ========================================\n";
+            std::cout << "  Command> ";
+
+            //feedback
+            std::cout << "  Last action : " << lastCmd << "\n";
+            if (!lastMsg.empty())
+                std::cout << "  >> " << lastMsg << "\n";
+            std::cout << "\n";
+
+            //controlls
+            std::cout << "  --------- CONTROLS ---------------------\n";
+            std::cout << "  [t] Fire thruster (upward burn)  ";
+            std::cout << (burning ? "<-- ACTIVE\n" : "\n");
+            std::cout << "  [s] Cut thruster\n";
+            std::cout << "  [Enter] Coast for 0.5 seconds\n";
+            std::cout << "  [q] Abort mission\n";
+            std::cout << "  Safe landing speed: <= 5.0 m/s\n";
+            std::cout << "  ----------------------------------------\n";
             std::cout << "  Command> ";
 
             std::string line;
@@ -135,22 +205,39 @@ void Game::run() {
             if (cmd == 'q') {
                 std::cout << "\n  Mission aborted by pilot.\n";
                 flightRecorder.record("[GAME] Mission aborted by user.");
-                break;
+                flightRecorder.saveLogsToFile();
+                std::cout << "  Flight log saved to logs/flight.log\n\n";
+                return;
             }
+
+            // Aplicar comando y guardar feedback
             if (cmd == 't') {
                 spacecraft->setThrusterActive(true);
-                flightRecorder.record("[GAME] Thruster ON at t=" + std::to_string(elapsedTime));
-            }
-            if (cmd == 's') {
+                lastCmd = "[t] Fire thruster";
+                lastMsg = "Thruster ON - burning " +
+                          std::to_string(static_cast<int>(8.0 * STEP_SECS)) +
+                          " kg of fuel this step";
+                flightRecorder.record("[CMD] Thruster ON at t=" + std::to_string(elapsedTime));
+            } else if (cmd == 's') {
                 spacecraft->setThrusterActive(false);
-                flightRecorder.record("[GAME] Thruster OFF at t=" + std::to_string(elapsedTime));
+                lastCmd = "[s] Cut thruster";
+                lastMsg = "Thruster OFF - coasting under gravity";
+                flightRecorder.record("[CMD] Thruster OFF at t=" + std::to_string(elapsedTime));
+            } else {
+                lastCmd = "[Enter] Coast";
+                lastMsg = "Coasting - gravity pulling at " +
+                          [&]() {
+                              std::ostringstream o;
+                              o << std::fixed << std::setprecision(2)
+                                << astro->surfaceGravity();
+                              return o.str();
+                          }() + " m/s^2";
             }
 
             bool finished = false;
             for (int i = 0; i < PHYS_STEPS && !finished; ++i) {
                 spacecraft->update(*astro, dt);
-                elapsedTime += dt;
-
+                elapsedTime += DT;
                 if (spacecraft->checkLanding(*astro))
                     finished = true;
             }
@@ -160,29 +247,47 @@ void Game::run() {
                 << " alt=" << std::setprecision(0) << altitude
                 << " spd=" << std::setprecision(2) << speed
                 << " fuel=" << std::setprecision(1) << fuel
-                << (burning ? " BURN" : "");
+                << (burning ? " BURN" : " COAST");
             flightRecorder.record(oss.str());
 
             if (finished) {
                 clearScreen();
                 double impactSpeed = speed;
+                
+                printSeparator();
                 if (spacecraft->isLanded()) {
-                    std::cout << "\n  +========================================+\n";
-                    std::cout << "  |         SUCCESSFUL LANDING             |\n";
-                    std::cout << "  |         Mission accomplished.          |\n";
+                    std::cout << "\n";
                     std::cout << "  +========================================+\n";
-                    flightRecorder.record("[RESULT] SAFE LANDING. Speed: " + std::to_string(impactSpeed));
+                    std::cout << "  |          SUCCESSFUL LANDING            |\n";
+                    std::cout << "  |          Mission accomplished.         |\n";
+                    std::cout << "  +========================================+\n";
+                    flightRecorder.record("[RESULT] SAFE LANDING.");
                 } else {
-                    std::cout << "\n  +========================================+\n";
-                    std::cout << "  |           SPACECRAFT DESTROYED         |\n";
-                    std::cout << "  |       Impact speed too high.           |\n";
+                    std::cout << "\n";
                     std::cout << "  +========================================+\n";
-                    flightRecorder.record("[RESULT] CRASH. Speed: " + std::to_string(impactSpeed));
+                    std::cout << "  |          SPACECRAFT DESTROYED          |\n";
+                    std::cout << "  |      Impact velocity too high.         |\n";
+                    std::cout << "  +========================================+\n";
+                    flightRecorder.record("[RESULT] CRASH.");
                 }
-                std::cout << "\n  Flight time     : " << std::fixed << std::setprecision(1)
+
+                std::cout << "\n";
+                printSeparator();
+                std::cout << "  FLIGHT SUMMARY\n";
+                printSeparator();
+                std::cout << "  Flight time      : " << std::fixed << std::setprecision(1)
                           << elapsedTime << " s\n";
-                std::cout << "  Remaining fuel  : " << std::setprecision(1)
-                          << spacecraft->getFuel() << " kg\n\n";
+                std::cout << "  Impact speed     : " << std::setprecision(2)
+                          << speed << " m/s"
+                          << (spacecraft->isLanded() ? "  (safe)" : "  (fatal)") << "\n";
+                std::cout << "  Remaining fuel   : " << std::setprecision(1)
+                          << spacecraft->getFuel() << " kg\n";
+                std::cout << "  Fuel used        : " << std::setprecision(1)
+                          << (INIT_FUEL - spacecraft->getFuel()) << " kg\n";
+                printSeparator();
+                std::cout << "\n";
+                flightRecorder.record("[SUMMARY] t=" + std::to_string(elapsedTime) +
+                                      " fuel_remaining=" + std::to_string(spacecraft->getFuel()));
                 break;
             }
         }
@@ -191,10 +296,12 @@ void Game::run() {
     std::cout << "Game ended. Flight log saved." << std::endl;
 
   } catch (const AstrolandException& ex) {
-    std::cerr << "[AstroLandException]: " << ex.what() << std::endl;
-    flightRecorder.record(std::string("[ERROR] ") + ex.what());
-  } catch (const std::exception& ex) {
-    std::cerr << "[std::exception]: " << ex.what() << std::endl;
-    flightRecorder.record(std::string("[ERROR] Unexpected: ") + ex.what());
-  }
+        std::cerr << "[AstroLandException]: " << ex.what() << std::endl;
+        flightRecorder.record(std::string("[ERROR] ") + ex.what());
+        flightRecorder.saveLogsToFile();
+    } catch (const std::exception& ex) {
+        std::cerr << "[std::exception]: " << ex.what() << std::endl;
+        flightRecorder.record(std::string("[ERROR] Unexpected: ") + ex.what());
+        flightRecorder.saveLogsToFile();
+    }
 };

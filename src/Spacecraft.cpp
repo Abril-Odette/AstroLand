@@ -110,7 +110,7 @@ bool Spacecraft::checkLanding(const Astro& body) {
             landed = true;
             std::cout << "[Landing] Safe landing! Speed: " << speed << " m/s" << std::endl;
         } else {
-            landed = true;
+            crashed = true;
             std::cout << "[Landing] Crash! Speed: " << speed << " m/s" << std::endl;
         }
 
