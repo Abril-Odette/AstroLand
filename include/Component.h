@@ -11,9 +11,9 @@ class Component {
         Component(double health, double weight, double cost);
         virtual ~Component();
 
-        double getHealth() const;
-        double getWeight() const;
-        double getCost() const;
+        double getHealth() const noexcept;
+        double getWeight() const noexcept;
+        double getCost() const noexcept;
 
         virtual void activate() = 0;
     
