@@ -5,6 +5,8 @@ AstroLand is a space landing simulator developed in C++14. The project addresses
 
 The goal is to provide a technical and educational experience where the user must optimize thruster usage and manage component integrity to achieve a successful touchdown under high-risk conditions.
 
+In this final version pf the project, the player controls a spacecraft descendinf toward the surface of Mars. Gracity pulls the ship down continuously. The player fires a thruster to slow the descent and mist touch douwn at 5 m/s or less to survive. 
+
 ---
 
 ## Repository Structure
@@ -22,6 +24,62 @@ The project is organized into the following directory structure:
 ## System Architecture & OOP Model
 The solution is built on an Onject-Oriented Design that decouples responsibilities into layer to ensure a modular and extensible system.
 
+## Build and Run
+
+###Requirements
+
+- `g++` with C++14 support
+- Windows (PowerShell) or Linux/macOS terminal
+
+###Build
+
+```bash
+# From the project root
+mkdir -p bin logs
+g++ -std=c++14 -Wall -Iinclude src/*.cpp -o bin/AstroLand
+```
+###Run
+
+**Windows (PowerShell):**
+```powershell
+.\bin\AstroLand.exe
+```
+
+**Linux / macOS:**
+```bash
+./bin/AstroLand
+```
+
+### Expected output on successful build
+
+No warnings, no errors. The binary is placed in `bin/AstroLand` (or `bin/AstroLand.exe` on Windows).
+
+---
+
+##How to play 
+- When you launch th eprogram, ypu will see a **Mission Briefing** screen with all the parameters of your ship and the target body, followed by the control reference.
+- Press **Enter** to begin. Each turn you will see the telemetry panel.
+- Then an altitude bar shows where the ship is relative to the surface, and the control panel is always displayed at the bottom of every frame.
+
+###Controls
+
+| Key + Enter | Action |
+|---|---|
+| `t` | Fire thruster (upward burn, slows descent) |
+| `s` | Cut thruster (coast under gravity) |
+| Enter | Coast for 0.5 seconds (no input) |
+| `q` | Abort mission and exit |
+
+Each turn advances **0.5 simulated seconds** of physics, giving you time to react as the ship approaches the surface.
+
+###Winning and losing
+- Touch down at **<= 5.0 m/s** -> `SUCCESFUL LANDING`
+- Touch down at *> 5.0 m/s** -> `SPACECRAFT DESTROYED`
+- Run out of fuel -> thruster stops working: only gravity acts on the ship from that point
+
+---
+##Past Version of the structure:
+
 ### 1. Environment Modeling (Base Data & Inheritance)
 *   **Astro (Abstract Base Class):** Stores universal physical data (mass, gravity, name) and defines polymorphic behavior for gravitational attraction calculations. It includes a virtual destructor to ensure safe memory management.
 *   **Planet & Moon (Derived Classes):** Inherit from `Astro`. These implement environment-specific properties, such as `atmosphericDensity` for the Planet class (enabling drag calculations) and `surfaceRoughness` for the Moon class.
@@ -36,4 +94,131 @@ The solution is built on an Onject-Oriented Design that decouples responsibiliti
 *   **Vector2D:** A custom mathematical structure that replaces external dependencies to solve dynamic equations of motion (Position and Velocity).
 *   **FlightRecorder (Black Box):** A module dedicated to capturing telemetry snapshots (altitude, velocity, fuel) and persisting them into text files for post-flight analysis, mimicking aerospace engineering standards.
 *   **ASCII renderer:** Handles the visual representation of the ship's position and the flight UI within the console, ensuring system portability and minimal library overhead.
+
+##Latest Version:
+
+## Class Design and OOP Concepts
+
+### Concept map
+
+| Concept | Where it lives |
+|---|---|
+| Abstract class / pure virtual | `Astro` (`surfaceGravity()`), `Component` (`activate()`) |
+| Inheritance | `Planet : Astro`, `Moon : Astro`, `Thruster : Component`, `FuelSensor : Component` |
+| Runtime polymorphism | `Game` holds `unique_ptr<Astro>` and calls `surfaceGravity()` through the base pointer. `Spacecraft` holds `vector<unique_ptr<Component>>` and iterates with `dynamic_cast` to dispatch thrust and sensor logic |
+| Virtual destructor | `Astro::~Astro()`, `Component::~Component()` — defined explicitly, ensuring the correct destructor chain runs when objects are deleted through base pointers |
+| Encapsulation | All data members are `private` or `protected`. State is mutated only through named methods. Invariants are enforced (fuel cannot go negative, name cannot be empty, mass must be positive) |
+| Operator overloading | `Vector2D` overloads `+`, `-`, `*`, `==`, `!=`, `<`, and `<<` with canonical signatures and return types |
+| Smart pointers | `Game` owns `unique_ptr<Spacecraft>` and `unique_ptr<Astro>`. `Spacecraft` owns `vector<unique_ptr<Component>>`. No raw `new` or `delete` anywhere in the codebase |
+| `std::vector` / `std::string` | `Spacecraft::components`, `FlightRecorder::logs`, all name and message fields |
+| Exception handling | `AstrolandException` derives from `std::exception`. Thrown in `Spacecraft` constructor for invalid parameters. Caught at the `Game::run()` boundary and at `main()`. RAII guarantees no resource leak on stack unwinding |
+| `noexcept` | All getters and operators that cannot throw are explicitly marked `noexcept` |
+| `override` | Every virtual method override in derived classes carries the `override` keyword |
+| Composition | `Spacecraft` owns its `Component` objects via `unique_ptr` — components are destroyed when the ship is destroyed |
+| Aggregation | `Game` holds `FlightRecorder` by value — a distinct object that lives alongside `Game` |
+| Dependency | `Spacecraft::update()` and `checkLanding()` receive `const Astro&` as a parameter — a transient, non-owning reference |
+
+### Class responsibilities
+
+**`Vector2D`** — 2D vector math used everywhere: position, velocity, acceleration, thruster direction. Demonstrates operator overloading with canonical signatures.
+
+**`Astro`** — Abstract base for celestial bodies. Holds physical parameters (name, mass, radius, position) and declares `surfaceGravity()` as a pure virtual method. Has a virtual destructor. Neither `Planet` nor `Moon` can be instantiated through this base; polymorphism dispatches to the correct override at runtime.
+
+**`Planet`** — Concrete celestial body with optional atmosphere. Implements `surfaceGravity()` using Newton's law of gravitation. Mars is the default mission target.
+
+**`Moon`** — Concrete celestial body without significant atmosphere. Carries orbital parameters. Implements `surfaceGravity()`. Available for alternative mission configurations.
+
+**`Component`** — Abstract base for spacecraft hardware. Declares `activate()` as a pure virtual hook. `Spacecraft` stores a heterogeneous collection of components through this base, enabling polymorphic dispatch.
+
+**`Thruster`** — Applies upward force and consumes fuel when active. `activate()` is a no-op hook; actual physics runs in `Spacecraft::applyThrust()` to keep physics logic centralized and avoid output spam during the simulation loop.
+
+**`FuelSensor`** — Monitors fuel level as a percentage of capacity. Reports `OK`, `LOW`, or `CRITICAL`. Synced from `Spacecraft::applyThrust()` every physics step. Its `activate()` prints a status report.
+
+**`Spacecraft`** — The player's vehicle. Owns its components. Applies gravity and thrust each timestep, updates position, and evaluates the landing condition. Throws `AstrolandException` in the constructor if invariants are violated.
+
+**`FlightRecorder`** — Accumulates string log entries during the mission and writes them to `logs/flight.log` on exit. Copy is explicitly deleted.
+
+**`AstrolandException`** — Custom exception type derived from `std::exception`. Carries a descriptive message. `what()` is `noexcept override`.
+
+**`Game`** — Top-level controller. Creates and owns all domain objects. Runs the interactive loop: clears the screen, renders telemetry and controls, reads player input, advances physics, evaluates end conditions, and saves the flight log.
+
+---
+
+##Test Cases
+
+###Test 1: Safe Landing
+
+*Strategy:** Coast for the first 20 turns to build speed awareness. Begin firing when altitude drops below 500 m. Fire continuously until descent speed is under 5 m/s.
+
+| Turn range | Command | Expected effect |
+|---|---|---|
+| 1 – 20 | Enter (coast) | Altitude decreases, speed increases under gravity |
+| 21 – 30 | `t` (fire) | Vertical velocity slows, fuel decreases ~4 kg per turn |
+| 31 onward | `t` / `s` alternating | Fine-tune descent to below 5 m/s |
+| Surface | — | `SUCCESSFUL LANDING` screen |
+
+**Expected final screen:**
+```
+  +========================================+
+  |          SUCCESSFUL LANDING            |
+  |          Mission accomplished.         |
+  +========================================+
+
+  Flight time      : ~55.0 s
+  Impact speed     : <= 5.00 m/s  (safe)
+  Remaining fuel   : > 0.0 kg
+```
+
+###Test 2: Crash
+
+**Strategy:** Press Enter every turn without ever firing.
+
+**Expected final screen:**
+```
+  +========================================+
+  |          SPACECRAFT DESTROYED          |
+  |      Impact velocity too high.         |
+  +========================================+
+
+  Impact speed     : >> 5.00 m/s  (fatal)
+  Remaining fuel   : 800.0 kg
+```
+
+###Test 3: Fuel Exhaustion
+
+**Strategy:** Fire the thruster (`t`) on every turn from the start.
+
+**Expected behavior:** After roughly 100 turns the fuel bar empties. The thruster field shows `[OFF] idle` even when `t` is pressed, because `applyThrust()` exits early when `fuel <= 0.0`. The ship then falls under gravity only until it hits the surface.
+
+###Test 4: Abort Mission
+
+**Strategy:** Press `q` + Enter on any turn.
+
+**Expected output:**
+```
+  Mission aborted by pilot.
+  Flight log saved to logs/flight.log
+```
+
+Verify that `logs/flight.log` exists and contains entries up to the abort turn.
+
+---
+
+##Flight Log
+
+Every mission writes a plain-text log to `logs/flight.log`.
+Example: 
+```
+[GAME] Initialized.
+[GAME] Game started.
+[CMD] Thruster ON at t=10.000000
+[STEP] t=10.5 alt=3120 spd=18.43 fuel=796.0 BURN
+[CMD] Thruster OFF at t=11.000000
+[STEP] t=11.5 alt=2980 spd=21.10 fuel=792.0 COAST
+[RESULT] SAFE LANDING.
+[SUMMARY] t=62.5 fuel_remaining=44.000000
+```
+
+The file is overwritten on each new run. Copy it before relaunching if you want to keep the record.
+
 ---
