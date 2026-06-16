@@ -26,19 +26,19 @@ The solution is built on an Onject-Oriented Design that decouples responsibiliti
 
 ## Build and Run
 
-###Requirements
+### Requirements
 
 - `g++` with C++14 support
 - Windows (PowerShell) or Linux/macOS terminal
 
-###Build
+### Build
 
 ```bash
 # From the project root
 mkdir -p bin logs
 g++ -std=c++14 -Wall -Iinclude src/*.cpp -o bin/AstroLand
 ```
-###Run
+### Run
 
 **Windows (PowerShell):**
 ```powershell
@@ -56,12 +56,12 @@ No warnings, no errors. The binary is placed in `bin/AstroLand` (or `bin/AstroLa
 
 ---
 
-##How to play 
+## How to play 
 - When you launch th eprogram, ypu will see a **Mission Briefing** screen with all the parameters of your ship and the target body, followed by the control reference.
 - Press **Enter** to begin. Each turn you will see the telemetry panel.
 - Then an altitude bar shows where the ship is relative to the surface, and the control panel is always displayed at the bottom of every frame.
 
-###Controls
+### Controls
 
 | Key + Enter | Action |
 |---|---|
@@ -78,7 +78,7 @@ Each turn advances **0.5 simulated seconds** of physics, giving you time to reac
 - Run out of fuel -> thruster stops working: only gravity acts on the ship from that point
 
 ---
-##Past Version of the structure:
+## Past Version of the structure:
 
 ### 1. Environment Modeling (Base Data & Inheritance)
 *   **Astro (Abstract Base Class):** Stores universal physical data (mass, gravity, name) and defines polymorphic behavior for gravitational attraction calculations. It includes a virtual destructor to ensure safe memory management.
@@ -144,9 +144,9 @@ Each turn advances **0.5 simulated seconds** of physics, giving you time to reac
 
 ---
 
-##Test Cases
+## Test Cases
 
-###Test 1: Safe Landing
+### Test 1: Safe Landing
 
 *Strategy:** Coast for the first 20 turns to build speed awareness. Begin firing when altitude drops below 500 m. Fire continuously until descent speed is under 5 m/s.
 
@@ -169,7 +169,7 @@ Each turn advances **0.5 simulated seconds** of physics, giving you time to reac
   Remaining fuel   : > 0.0 kg
 ```
 
-###Test 2: Crash
+### Test 2: Crash
 
 **Strategy:** Press Enter every turn without ever firing.
 
@@ -184,13 +184,13 @@ Each turn advances **0.5 simulated seconds** of physics, giving you time to reac
   Remaining fuel   : 800.0 kg
 ```
 
-###Test 3: Fuel Exhaustion
+### Test 3: Fuel Exhaustion
 
 **Strategy:** Fire the thruster (`t`) on every turn from the start.
 
 **Expected behavior:** After roughly 100 turns the fuel bar empties. The thruster field shows `[OFF] idle` even when `t` is pressed, because `applyThrust()` exits early when `fuel <= 0.0`. The ship then falls under gravity only until it hits the surface.
 
-###Test 4: Abort Mission
+### Test 4: Abort Mission
 
 **Strategy:** Press `q` + Enter on any turn.
 
@@ -204,7 +204,7 @@ Verify that `logs/flight.log` exists and contains entries up to the abort turn.
 
 ---
 
-##Flight Log
+## Flight Log
 
 Every mission writes a plain-text log to `logs/flight.log`.
 Example: 
