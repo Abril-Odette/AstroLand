@@ -237,7 +237,7 @@ void Game::run() {
             bool finished = false;
             for (int i = 0; i < PHYS_STEPS && !finished; ++i) {
                 spacecraft->update(*astro, dt);
-                elapsedTime += DT;
+                elapsedTime += dt;
                 if (spacecraft->checkLanding(*astro))
                     finished = true;
             }
@@ -252,9 +252,9 @@ void Game::run() {
 
             if (finished) {
                 clearScreen();
-                double impactSpeed = speed;
                 
                 printSeparator();
+                
                 if (spacecraft->isLanded()) {
                     std::cout << "\n";
                     std::cout << "  +========================================+\n";
