@@ -95,11 +95,9 @@ Each turn advances **0.5 simulated seconds** of physics, giving you time to reac
 *   **FlightRecorder (Black Box):** A module dedicated to capturing telemetry snapshots (altitude, velocity, fuel) and persisting them into text files for post-flight analysis, mimicking aerospace engineering standards.
 *   **ASCII renderer:** Handles the visual representation of the ship's position and the flight UI within the console, ensuring system portability and minimal library overhead.
 
-##Latest Version:
+## Latest Version:
 
-## Class Design and OOP Concepts
-
-### Concept map
+### Class Design and OOP Concepts
 
 | Concept | Where it lives |
 |---|---|
